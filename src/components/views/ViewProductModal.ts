@@ -5,68 +5,72 @@
 
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/components";
+import { IProduct } from "../../types";
+import { IEvents } from "../base/events";
 
-interface IViewModal {
-    image: string,
-    category: string,
-    title: string,
-    description: string,
-    price: string,
-    buttonText: HTMLButtonElement
+interface IViewProductModal {
+    image: string;
+    category: string;
+    title: string;
+    description: string;
+    price: number;
+    // button: HTMLButtonElement;
+    product: IProduct;
+    showModal: boolean;
 }
+export class ViewProductModal extends Component<IViewProductModal> {
 
-export class ViewProductModal extends Component<IViewModal> {
-
-    protected _image: HTMLImageElement;
-    protected _category: HTMLElement;
-    protected _title: HTMLElement;
-    protected _description: HTMLElement;
-    protected _price: HTMLElement;
-    protected _button: HTMLButtonElement;
+    protected _imageElement: HTMLImageElement;
+    protected _categoryElement: HTMLElement;
+    protected _titleElement: HTMLElement;
+    protected _descriptionElement: HTMLElement;
+    protected _priceElement: HTMLElement;
+    protected _buttonElement: HTMLButtonElement;
     protected _isActive: boolean;
+    protected _product: IProduct;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
-        this._isActive = false;
-
-        this._title = ensureElement<HTMLElement>('.card__title', this.container);
-        this._description = ensureElement<HTMLElement>('.card__text', this.container);
-        this._price = ensureElement<HTMLElement>('.card__price', this.container);
-        this._image = ensureElement<HTMLImageElement>('.card__image', this.container);
-        this._button = ensureElement<HTMLButtonElement>('.card__button', this.container);
-        this._category = ensureElement<HTMLElement>('.card__category_other', this.container);
-        
+        this.initElements();
     }
 
-    set isActive(value: boolean) {
+    protected initElements() {
+        this._titleElement = ensureElement<HTMLElement>('.card__title', this.container);
+        this._descriptionElement = ensureElement<HTMLElement>('.card__text', this.container);
+        this._priceElement = ensureElement<HTMLElement>('.card__price', this.container);
+        this._imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
+        this._categoryElement = ensureElement<HTMLElement>('.card__category', this.container);
+        this._buttonElement = ensureElement<HTMLButtonElement>('.card__button', this.container);
+        
+        this._buttonElement.addEventListener('click', () => {
+            this.events.emit('cart:add-item', this._product);
+        })
+    }
+    set product(value: IProduct) {
+        this._product = value;
+        if (!this._titleElement) return; // Защита от вызова до инициализации
+        this._titleElement.textContent = value.title;
+        this._descriptionElement.textContent = value.description;
+        this._priceElement.textContent = `${value.price} синапсов`;
+        this._imageElement.src = value.image;
+        this._imageElement.alt = value.title;
+        this._categoryElement.textContent = value.category;
+    }
+    set showModal(value: boolean) {
         this._isActive = value;
         if (value) {
-            this.container.classList.add('modal_active')
+            // this.setVisible(this.container); // Метод базового класса для показа
+            this.container.classList.add('modal_active');
         } else {
+            // this.setHidden(this.container); // Метод базового класса для скрытия
             this.container.classList.remove('modal_active');
         }
     }
-
-    get isActive(): boolean {
-        return this.isActive;
-    }
-
-    openModal(): void {
-        this.isActive = true;
-    }
-
-    closeModal(): void {
-        this.isActive = false;
-    }
-render(data?: Partial<IViewModal>): HTMLElement {
-        if (data) {
-            if (data.title) this._title.textContent = data.title;
-            if (data.description) this._description.textContent = data.description;
-            if (data.price) this._price.textContent = data.price;
-            if (data.image) this._image.src = data.image;
-            if (data.category) this._category.textContent = data.category;
-            if (data.buttonText) this._button.textContent = data.buttonText.textContent;
-        }
-        return this.container;
-    }
 }
+
+// render(data?: Partial<IViewModal>): HTMLElement {
+//     if (!this._titleElement) {
+//         this.initElements();
+//     }
+//     return super.render(data);
+// }

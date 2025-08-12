@@ -1,24 +1,58 @@
-import { EventEmitter } from './components/base/events';
+import { IProduct } from './types/index';
+import { EventEmitter, IEvents } from './components/base/events';
 import './scss/styles.scss';
 import { WebLarekAPI } from './components/WebLarekAPI';
-import { ModelProductList } from './components/models/ModelProductList';
+import { cloneTemplate, ensureElement } from './utils/utils';
+import { CDN_URL, API_URL } from './utils/constants';
+import { createElement } from './utils/utils';
 import { ViewPage } from './components/views/ViewPage';
 import { ViewProductItem } from './components/views/ViewProductItem';
-import { cloneTemplate, ensureElement } from './utils/utils';
-// import { ModelCart } from './components/models/ModelCart';
+import { ViewCartProductItem } from './components/views/ViewCartProductItem';
+import { ViewModal } from './components/views/ViewModal';
+import { ViewProductModal } from './components/views/ViewProductModal';
+import { ViewCartModal } from './components/views/ViewCartModal';
+import { ViewOrderModal } from './components/views/ViewOrderModal';
+import { ViewOrderContactModal } from './components/views/ViewOrderContactModal';
+import { ViewSuccessModal } from './components/views/ViewSuccessModal';
+import { ModelProductList } from './components/models/ModelProductList';
+import { ModelCart } from './components/models/ModelCart';
+import { ModelOrder } from './components/models/ModelOrder';
 
 const events = new EventEmitter();
 const productList = new ModelProductList(events) // создаем экземпляр класса ModelProductList
 const api = new WebLarekAPI('https://larek-api.nomoreparties.co');
-// const page = new ViewPage(document.querySelector('.page') as HTMLElement);
+// const api = new WebLarekAPI(CDN_URL, API_URL);
+const page = new ViewPage(ensureElement<HTMLElement>('.page'), events);
 const itemTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
-const page = new ViewPage(ensureElement<HTMLElement>('.page'));
+const previewTemplate = document.querySelector('#card-preview') as HTMLTemplateElement;
+const modal = new ViewModal(ensureElement<HTMLElement>('.modal'));
+const productModal = new ViewProductModal(cloneTemplate(previewTemplate), events);
+const cartTemplate = document.querySelector('#basket') as HTMLTemplateElement;
+const cartModal = new ViewCartModal(cloneTemplate(cartTemplate), events);
+const modelCart = new ModelCart(events);
+const cartItemsTemplate = document.querySelector('#card-basket') as HTMLTemplateElement;
+const formTemplate = document.querySelector('#order') as HTMLTemplateElement;
+const formOrder = new ViewOrderModal(cloneTemplate(formTemplate), events);
+const formContactsTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
+const formContacts = new ViewOrderContactModal(cloneTemplate(formContactsTemplate), events);
+const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
+const successModal = new ViewSuccessModal(cloneTemplate(successTemplate), events);
+const modelOrder = new ModelOrder(events);
+
+function refreshCartView(): HTMLElement {
+    const items = modelCart.getItems();
+    const itemElements = items.map(item =>
+        new ViewCartProductItem(cloneTemplate(cartItemsTemplate), events).render({ product: item }));
+
+    return cartModal.render({
+        products: itemElements
+    });
+}
 
 // 1 получение продуктов с сервера через экземпляр класса api и размещения их в ModalProductList
-
 api.getProductList()
     .then((data) => {
-        productList.setItems(data.items); // вызываем метод экземпляра
+        productList.setItems(data.items);
         console.log(data);
     })
     .catch((err) => {
@@ -26,30 +60,66 @@ api.getProductList()
     });
 
 // 2 отрисовка страницы с карточками продуктов
-
 events.on('items:changed', () => {
     const itemsHTMLArray = productList.getItems().map(item =>
-        new ViewProductItem(cloneTemplate(itemTemplate), events).render({product: item}))
+        new ViewProductItem(cloneTemplate(itemTemplate), events).render({ product: item }))
     page.render({
         catalog: itemsHTMLArray,
     });
 })
 
 events.on('item:click', ({ id }: { id: string }) => {
-    const product = productList.getItemById(id);
-    if (product) {
-        console.log("Открываем карточку продукта", product.title);
-        console.log("ID получен:", id);
-        console.log("Найденный продукт:", product);
-        // events.emit('modal:open', product);
+    const productData = productList.getItemById(id);
+    if (productData) {
+        const productElement = productModal.render({ product: productData });
+        modal.open(productElement);
     }
+});
+
+events.on('cart:add-item', (product: IProduct) => {
+    console.log('Добавили в корзину:', product);
+    modelCart.addCart(product);
+});
+
+events.on('cart:open', () => {
+    console.log('открываем корзину');
+    modal.open(refreshCartView());
+});
+
+events.on('cart:delete-item', ({ id }: { id: string }) => {
+    console.log('Удалили из корзины:', id);
+    modelCart.deleteCart(id);
+    refreshCartView();
+})
+
+events.on('cart:order', () => {
+    console.log('Оформить');
+    modal.render({
+        content: formOrder.render()
+    });
+})
+
+events.on('order:proceed', () => {
+    modal.render({
+        content: formContacts.render()
+    })
+})
+
+events.on('finish:click', () => {
+    modal.render({
+        content: successModal.render()
+    })
+})
+
+events.on('closes:click', () => {
+    modal.close();
 })
 
 
 
+
+
 // 3 обработка события нажатия на карточку. В событии должны быть сведения по нажатой карточке (информация по id карточке)
-
-
 // 4 прослушивать через eventemitter события добавления продукта в корзину
 // и вызывать соотв. методы в ModelCart
 // 5 вешаем прослушивать на оформление заказа
