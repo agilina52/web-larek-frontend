@@ -1,17 +1,7 @@
-import { IProduct } from "../../types";
+import { IOrder as IModelOrder, TOrderPayment } from "../../types";
 import { EventEmitter } from "../base/events";
 
-interface IModelOrder {
-    // product?: IProduct[];
-    payment: 'card' | 'cash' | null;
-    address: string;
-    email: string;
-    phone: string;
-    total: number;
-    items: IProduct[]; // Массив товаров в заказе
-    // valid: boolean; // Флаг валидности
-    // описать сущности (способ оплаты, данные заказчика, адрес доставки и список продуктов, сумма заказа всего)
-}
+// interface IModelOrder extends IOrder;
 export class ModelOrder {
     protected _order: IModelOrder;
     protected events: EventEmitter;
@@ -24,35 +14,34 @@ export class ModelOrder {
             phone: '',
             total: 0,
             items: []
-            // valid: false,
         };
         this.events = events;
     }
 
     // Устанвливаем способ оплаты
-    setPayment(method: 'card' | 'cash'): void {
+    setPayment(method: TOrderPayment): void {
         this._order.payment = method;
         this.events.emit('order.payment:changed', { payment: method });
     }
+
     // Устанавливаем адрес доставки
     setAddress(address: string): void {
+        this._order.address = address;
         this.events.emit('order.address:changed', { address });
     }
-
 
     // Устанавливаем email
     setEmail(email: string): void {
         this._order.email = email;
         this.events.emit('order.email:changed', { email });
     }
+
     // Устанавливаем телефон
     setPhone(phone: string): void {
         this._order.phone = phone;
         this.events.emit('order.phone:changed', { phone });
     }
 
-
-    
     // Метод для обновления данных заказа
     setOrder(data: Partial<IModelOrder>): void {
         this._order = {
@@ -85,11 +74,3 @@ export class ModelOrder {
         };
     }
 }
-
-// Еще важное правило. Когда создаешь какое-то свойство в модели данных, спроси себя, а могу лия я где-то жто получить или посчитать из чего-то? Если Да, то не надо его создавать, надо считать.
-// Например.
-// Сумма всех купленных товаров, надо ли для нее делать свойство total? А можем ли мы где-то посчитать ее? Да, если взять массив товаров в basket и сложить все цены товаров.
-// Значит НЕЛЬЗЯ делать total.
-// 08:35
-// Значит нужно создать метод, типа getTotal() который будет из корзины брать все товары и считать сумму покупки и return ее.
-// Тогда в любом месте, где тебе понадобится сумма покупки ты просто будешь писать модель.getTotal() и получать эту сумму

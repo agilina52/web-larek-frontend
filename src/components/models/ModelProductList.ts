@@ -19,5 +19,4 @@ export class ModelProductList {
     getItemById(id: string): IProduct | undefined {
         return this.items.find(item => item.id === id)
     }
-
 }

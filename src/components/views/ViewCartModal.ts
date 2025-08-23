@@ -1,6 +1,3 @@
-//itemProduct:delete -  1 событие удаления продукта из корзины
-//resumeCart:click -  2 событие продолжения оформления заказа
-
 import { IProduct } from "../../types";
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/components";
@@ -11,10 +8,7 @@ interface IViewCartModal {
     totalPrice: HTMLElement;
     products: HTMLElement[];
     listElement: HTMLElement;
-
-    // items: HTMLElement[];
-    // total: number;
-    // selected: string[];
+    total: number;
 }
 export class ViewCartModal extends Component<IViewCartModal> {
     protected _orderButton: HTMLButtonElement;
@@ -46,16 +40,25 @@ export class ViewCartModal extends Component<IViewCartModal> {
                 }
             }
         });
-        
     }
 
     //    метод для обновления списка товаров
     set products(items: HTMLElement[]) {
-        // this._products = items;
-        // console.log(items);
         this._listElement.textContent = '';
         items.forEach(item => {
             this._listElement.appendChild(item);
         })
+        console.log(items);
+        if (items.length > 0) {
+            this._orderButton.classList.remove('disabled');
+            this._orderButton.removeAttribute('disabled');
+        } else {
+            this._orderButton.classList.add('disabled');
+            this._orderButton.setAttribute('disabled', 'true');
+        }
+    }
+
+    set total(value: number) {
+        this._totalPrice.textContent = value + ' синапсов';
     }
 }

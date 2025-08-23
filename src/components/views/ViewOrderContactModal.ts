@@ -17,12 +17,9 @@ export class ViewOrderContactModal extends Component<IViewOrderContactModal> {
         this._inputEmail = ensureElement<HTMLInputElement>('[name="email"]', container);
         this._inputPhone = ensureElement<HTMLInputElement>('[name="phone"]', container);
         this._submitButton = ensureElement<HTMLButtonElement>('button[type=submit]', container);
-        
-        // Инициализация состояния кнопки
-        // this.updateSubmitButtonState();
 
         this._inputEmail.addEventListener('input', () => {
-            console.log('вводим адрес доставки');
+            console.log('вводим email');
             events.emit('inputUser:changed', {
                 field: 'email',
                 value: this._inputEmail.value,
@@ -46,17 +43,25 @@ export class ViewOrderContactModal extends Component<IViewOrderContactModal> {
         });
     }
 
-    // дополнила
     private updateSubmitButtonState(): void {
         const isValid = this.isFormValid();
         this._submitButton.disabled = !isValid;
         this._submitButton.classList.toggle('button_disabled', !isValid);
     }
 
-
     private isFormValid(): boolean {
         const emailValid = this._inputEmail.value.trim() !== '';
         const phoneValid = this._inputPhone.value.trim() !== '';
         return emailValid && phoneValid;
+    }
+
+    isLoading(state: boolean) {
+        if (state) {
+            this._submitButton.textContent = 'Пожалуйста, ожидайте...';
+            this._submitButton.setAttribute('disabled', 'true');
+        } else {
+            this._submitButton.textContent = "Оплатить";
+            this._submitButton.removeAttribute('disabled');
+        }
     }
 }

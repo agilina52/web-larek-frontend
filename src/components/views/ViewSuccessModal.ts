@@ -1,12 +1,10 @@
 import { Component } from "../base/components";
 import { IEvents } from "../base/events";
 import { ensureElement } from '../../utils/utils';
-
 interface IViewSuccessModal {
-    totalPrice: HTMLElement;
+    totalPrice: number;
     image: string;
 }
-
 export class ViewSuccessModal extends Component<IViewSuccessModal> {
     protected _form: HTMLFormElement;
     protected _image: string;

@@ -1,5 +1,3 @@
-// inputUser:changed - поля ввода информации о пользователе (в том числе выбора способа оплаты по кнопке)
-// orderFinish:click - событие отправки заказа
 import { EventEmitter } from '../base/events';
 import { Component } from '../base/components';
 import { ensureElement } from '../../utils/utils';
@@ -30,14 +28,12 @@ export class ViewOrderModal extends Component<IViewOrderModal> {
             '[name="address"]',
             container
         );
-        
+
         this._submitButton = ensureElement<HTMLButtonElement>(
             'button[type=submit]',
             container
         );
         console.log(this._submitButton);
-        // Инициализируем состояние кнопки
-        // this.updateSubmitButtonState();
 
         this._cardButton.addEventListener('click', () => {
             this.setPaymentMethod('card');
@@ -60,7 +56,7 @@ export class ViewOrderModal extends Component<IViewOrderModal> {
         });
 
         this._inputAddress.addEventListener('input', () => {
-            console.log('вводим адрес доставки');
+            console.log('вводим адрес доставки', this._inputAddress.value);
             events.emit('inputUser:changed', {
                 field: 'address',
                 value: this._inputAddress.value,
@@ -84,19 +80,13 @@ export class ViewOrderModal extends Component<IViewOrderModal> {
         this._isPaymentSelected = true;
     }
 
-
     private updateSubmitButtonState(): void {
         const isValid = this.isFormValid();
         this._submitButton.disabled = !isValid;
         this._submitButton.classList.toggle('button_disabled', !isValid);
     }
 
-
     private isFormValid(): boolean {
         return this._isPaymentSelected && this._inputAddress.value.trim() !== '';
     }
-    // Для кнопки ДАЛЕЕ сделать условие валидации, 
-    // если все поле адреса заполнено и выбран тип оплаты,
-    // то кнопку делать активной
-
 }
