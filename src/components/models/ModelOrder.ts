@@ -1,7 +1,13 @@
-import { IOrder as IModelOrder, TOrderPayment } from "../../types";
+import { TOrderPayment } from "../../types";
 import { EventEmitter } from "../base/events";
 
-// interface IModelOrder extends IOrder;
+export interface IModelOrder {
+    payment: TOrderPayment,
+    email: string,
+    phone: string,
+    address: string
+}
+
 export class ModelOrder {
     protected _order: IModelOrder;
     protected events: EventEmitter;
@@ -11,9 +17,7 @@ export class ModelOrder {
             payment: null,
             address: '',
             email: '',
-            phone: '',
-            total: 0,
-            items: []
+            phone: ''
         };
         this.events = events;
     }
@@ -68,9 +72,7 @@ export class ModelOrder {
             payment: null,
             address: '',
             email: '',
-            phone: '',
-            total: 0,
-            items: []
+            phone: ''
         };
     }
 }

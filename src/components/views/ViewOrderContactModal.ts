@@ -19,7 +19,6 @@ export class ViewOrderContactModal extends Component<IViewOrderContactModal> {
         this._submitButton = ensureElement<HTMLButtonElement>('button[type=submit]', container);
 
         this._inputEmail.addEventListener('input', () => {
-            console.log('вводим email');
             events.emit('inputUser:changed', {
                 field: 'email',
                 value: this._inputEmail.value,
@@ -27,7 +26,6 @@ export class ViewOrderContactModal extends Component<IViewOrderContactModal> {
             this.updateSubmitButtonState();
         });
         this._inputPhone.addEventListener('input', () => {
-            console.log('вводим адрес доставки');
             events.emit('inputUser:changed', {
                 field: 'phone',
                 value: this._inputPhone.value,
@@ -37,7 +35,6 @@ export class ViewOrderContactModal extends Component<IViewOrderContactModal> {
         this._submitButton.addEventListener('click', (e) => {
             e.preventDefault();
             if (this.isFormValid()) {
-                console.log('нажали кнопку Оплатить');
                 this.events.emit('finish:click');
             }
         });

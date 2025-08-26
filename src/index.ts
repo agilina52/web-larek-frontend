@@ -1,4 +1,4 @@
-import { IProduct, TOrderPayment } from './types/index';
+import { IOrder, IProduct, TOrderPayment } from './types/index';
 import { EventEmitter } from './components/base/events';
 import './scss/styles.scss';
 import { WebLarekAPI } from './components/WebLarekAPI';
@@ -38,21 +38,16 @@ const successTemplate = document.querySelector('#success') as HTMLTemplateElemen
 const successModal = new ViewSuccessModal(cloneTemplate(successTemplate), events);
 const modelOrder = new ModelOrder(events);
 
-function refreshCartView(): HTMLElement {
+function getCartProductList(): HTMLElement[] {
     const items = modelCart.getItems();
-    const itemElements = items.map((item, index) =>
+    return items.map((item, index) =>
         new ViewCartProductItem(cloneTemplate(cartItemsTemplate), events).render({ product: item, counter: index + 1 }));
-    return cartModal.render({
-        products: itemElements,
-        total: modelCart.getTotal()
-    });
 }
 
 // получение продуктов с сервера 
 api.getProductList()
     .then((items) => {
         productList.setItems(items);
-        console.log(items);
     })
     .catch((err) => {
         console.error('Ошибка:', err);
@@ -71,7 +66,6 @@ events.on('item:click', ({ id }: { id: string }) => {
     const productData = productList.getItemById(id);
     if (!productData) return;
     const idElement = modelCart.hasItem(id);
-    console.log(idElement)
     const productElement = productModal.render({
         product: productData,
         selectedCart: idElement
@@ -80,29 +74,32 @@ events.on('item:click', ({ id }: { id: string }) => {
 });
 
 events.on('cart:add-item', (product: IProduct) => {
-    console.log('Добавили в корзину:', product);
     modelCart.addCart(product);
+    cartModal.render({
+        products: getCartProductList(),
+        total: modelCart.getTotal()
+    })
     page.render({
         counter: modelCart.getTotalCount()
     });
 });
 
 events.on('cart:open', () => {
-    console.log('открываем корзину');
-    modal.open(refreshCartView());
+    modal.open(cartModal.render());
 });
 
 events.on('cart:delete-item', ({ id }: { id: string }) => {
-    console.log('Удалили из корзины:', id);
     modelCart.deleteCart(id);
-    refreshCartView();
+    cartModal.render({
+        products: getCartProductList(),
+        total: modelCart.getTotal()
+    })
     page.render({
         counter: modelCart.getTotalCount()
     });
 })
 
 events.on('cart:order', () => {
-    console.log('Оформить');
     modal.render({
         content: formOrder.render()
     });
@@ -115,12 +112,13 @@ events.on('order:proceed', () => {
 })
 
 events.on('finish:click', () => {
-    modelOrder.setOrder({
+    const order = {
+        ...modelOrder.getOrder(),
         items: modelCart.getItems().map(item => item.id),
         total: modelCart.getTotal()
-    })
+    } as IOrder;
     formContacts.isLoading(true);
-    api.pushOrder(modelOrder.getOrder())
+    api.pushOrder(order)
         .then((data) => {
             modelCart.clearCart();
             modelOrder.clearOrder();
@@ -129,7 +127,6 @@ events.on('finish:click', () => {
                     totalPrice: data.total
                 })
             })
-            console.log(data, 'отправлено на сервер')
         })
         .catch((err) => {
             console.error('Ошибка:', err);
@@ -140,7 +137,6 @@ events.on('finish:click', () => {
                 counter: modelCart.getTotalCount()
             });
         });
-
 })
 
 events.on('closes:click', () => {

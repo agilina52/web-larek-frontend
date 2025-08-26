@@ -14,7 +14,6 @@ export class ViewProductItem extends Component<IViewProductItem> {
 
     constructor(container: HTMLElement, protected events: EventEmitter) {
         super(container);
-        console.log('ViewProductItem создан');
 
         this.titleElement = ensureElement('.card__title', this.container);
         this.imageElement = ensureElement('.card__image', this.container) as HTMLImageElement;
@@ -22,9 +21,7 @@ export class ViewProductItem extends Component<IViewProductItem> {
         this.priceElement = ensureElement('.card__price', this.container) as HTMLElement;
 
         this.container.addEventListener('click', () => {
-            console.log(`Клик по товару`, this._product);
             if (this._product) {
-                console.log(`Клик по товару`);
                 this.events.emit('item:click', { id: this._product.id })
             }
         });

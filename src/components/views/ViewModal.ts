@@ -22,7 +22,6 @@ export class ViewModal extends Component<IViewModal> {
 		this._closeButton.addEventListener('click', this.close.bind(this));
 		this.modalView.addEventListener('click', (event) => {
 			if (event.target === event.currentTarget) {
-				console.log('родитель');
 				this.close();
 			}
 		});

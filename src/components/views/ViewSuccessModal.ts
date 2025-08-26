@@ -24,7 +24,6 @@ export class ViewSuccessModal extends Component<IViewSuccessModal> {
 
     protected initEventListeners() {
         this._buttonClose.addEventListener('click', () => {
-            console.log('За новыми покупками');
             this.events.emit('closes:click');
         });
     }

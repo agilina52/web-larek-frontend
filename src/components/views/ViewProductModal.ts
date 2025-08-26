@@ -55,7 +55,6 @@ export class ViewProductModal extends Component<IViewProductModal> {
 		);
 
 		this._buttonElement.addEventListener('click', () => {
-			console.log(this._selectedCart);
 			if (this._selectedCart) {
 				this.selectedCart = false;
 				this.events.emit('cart:delete-item', this._product);

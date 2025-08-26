@@ -33,30 +33,27 @@ export class ViewOrderModal extends Component<IViewOrderModal> {
             'button[type=submit]',
             container
         );
-        console.log(this._submitButton);
 
         this._cardButton.addEventListener('click', () => {
             this.setPaymentMethod('card');
-            console.log('выбрали тип оплаты онлайн');
+            this.updateSubmitButtonState();
             events.emit('inputUser:changed', {
                 field: 'payment',
                 value: 'card',
             });
-            this.updateSubmitButtonState();
         });
 
         this._cashButton.addEventListener('click', () => {
             this.setPaymentMethod('cash');
-            console.log('выбрали тип оплаты при получении');
+            this.updateSubmitButtonState();
             events.emit('inputUser:changed', {
                 field: 'payment',
                 value: 'cash',
             });
-            this.updateSubmitButtonState();
         });
 
         this._inputAddress.addEventListener('input', () => {
-            console.log('вводим адрес доставки', this._inputAddress.value);
+            this.updateSubmitButtonState();
             events.emit('inputUser:changed', {
                 field: 'address',
                 value: this._inputAddress.value,
@@ -64,11 +61,9 @@ export class ViewOrderModal extends Component<IViewOrderModal> {
         });
 
         this._submitButton.addEventListener('click', (e) => {
-            console.log('_submitButton.addEventListener');
             e.preventDefault();
 
             if (this.isFormValid()) {
-                console.log('нажали кнопку Далее');
                 this.events.emit('order:proceed');
             }
         });

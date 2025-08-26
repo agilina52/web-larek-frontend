@@ -19,7 +19,6 @@ export class ViewPage extends Component<IViewPage> {
         this.counterElement = ensureElement('.header__basket-counter', this.container); // Элемент счётчика
         this.cartButtonElement.addEventListener('click', () => {
             this.events.emit('cart:open');
-            console.log('открыли баскет')
         })
     }
 

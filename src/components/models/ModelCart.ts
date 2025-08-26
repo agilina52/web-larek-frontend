@@ -3,6 +3,7 @@ import { IProduct } from "../../types";
 
 export class ModelCart {
     protected items: IProduct[] = [];
+    
     constructor(protected events: IEvents) { }
 
     addCart(product: IProduct): void {
@@ -27,7 +28,6 @@ export class ModelCart {
         return this.items.reduce((sum, item) => sum + Number(item.price), 0);
     }
 
-    // Метод для проверки наличия товара по ID
     hasItem(id: string): boolean {
         return this.items.some(item => item.id === id);
     }

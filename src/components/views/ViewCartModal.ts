@@ -29,17 +29,6 @@ export class ViewCartModal extends Component<IViewCartModal> {
         this._orderButton.addEventListener('click', () => {
             this.events.emit('cart:order');
         });
-
-        this._listElement.addEventListener('click', (event) => {
-            const target = event.target as HTMLElement;
-            if (target.classList.contains('basket__item-delete')) {
-                const itemElement = target.closest('.basket__item');
-                const productId = itemElement?.getAttribute('data-id');
-                if (productId) {
-                    this.events.emit('product:remove', { id: productId })
-                }
-            }
-        });
     }
 
     //    метод для обновления списка товаров
@@ -48,7 +37,6 @@ export class ViewCartModal extends Component<IViewCartModal> {
         items.forEach(item => {
             this._listElement.appendChild(item);
         })
-        console.log(items);
         if (items.length > 0) {
             this._orderButton.classList.remove('disabled');
             this._orderButton.removeAttribute('disabled');
