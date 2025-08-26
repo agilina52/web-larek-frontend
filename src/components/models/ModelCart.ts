@@ -33,6 +33,7 @@ export class ModelCart {
     }
 
     clearCart() {
-        this.items = []
+        this.items = [];
+        this.events.emit('cart:changed', this.items); // Добавлено событие
     }
 }
